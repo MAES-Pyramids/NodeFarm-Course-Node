@@ -33,16 +33,11 @@ function createCards(template, JSON_Data) {
     output = output.replace(/{%not-organic%}/g, "not-organic");
   return output;
 }
+
 ////////////////////////////////
 const server = http.createServer((req, res) => {
-  const query = req.url;
-
-  if (query == "/" || query == "'/overview") {
-    res.writeHead(200, {
-      "content-type": "text/html",
-    });
-    res.end("Go to /product");
-  } else if (query === "/product") {
+  const { query, pathname } = url.parse(req.url, true);
+  if (pathname == "/" || pathname == "/overview") {
     res.writeHead(200, {
       "content-type": "text/html",
     });
@@ -51,7 +46,14 @@ const server = http.createServer((req, res) => {
       .join("");
     const mainPage = overview.replace(/{%card%}/g, products);
     res.end(mainPage);
-  } else if (query === "/api") {
+  } else if (pathname === "/product") {
+    res.writeHead(200, {
+      "content-type": "text/html",
+    });
+    const product = dataObject[query.id];
+    const infoPage = createCards(productDetails, product);
+    res.end(infoPage);
+  } else if (pathname === "/api") {
     res.writeHead(200, {
       "content-type": "application/json",
     });
