@@ -1,0 +1,29 @@
+{
+  "terminal.integrated.shellArgs.windows": [
+    "-ExecutionPolicy",
+    "Bypass"
+  ],
+  "name": "node-farm",
+  "version": "1.0.0",
+  "description": "learing node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MAES-Pyramids/NodeFarm-Course-Node.git"
+  },
+  "author": "abo el-seoud",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MAES-Pyramids/NodeFarm-Course-Node/issues"
+  },
+  "homepage": "https://github.com/MAES-Pyramids/NodeFarm-Course-Node#readme",
+  "dependencies": {
+    "slugify": "^1.6.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}

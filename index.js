@@ -2,9 +2,12 @@ const http = require("http");
 const url = require("url");
 const fs = require("fs");
 
+const slugify = require("slugify");
+
+const replaceAndFill = require("./modules/replaceTemplates");
 ////////////////////////////////
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
-const dataObject = JSON.parse(data);
+dataObject = JSON.parse(data);
 
 const overview = fs.readFileSync(
   `${__dirname}/templates/template-overview.html`,
@@ -19,22 +22,14 @@ const cardTemplate = fs.readFileSync(
   "utf-8"
 );
 
-function createCards(template, JSON_Data) {
-  let output = template.replace(/{%ID%}/g, JSON_Data.id);
-  output = output.replace(/{%name%}/g, JSON_Data.productName);
-  output = output.replace(/{%from%}/g, JSON_Data.from);
-  output = output.replace(/{%image%}/g, JSON_Data.image);
-  output = output.replace(/{%nutations%}/g, JSON_Data.nutrients);
-  output = output.replace(/{%quantity%}/g, JSON_Data.quantity);
-  output = output.replace(/{%price%}/g, JSON_Data.price);
-  output = output.replace(/{%description%}/g, JSON_Data.description);
-
-  if (!JSON_Data.organic)
-    output = output.replace(/{%not-organic%}/g, "not-organic");
-  return output;
-}
-
 ////////////////////////////////
+const slugs = dataObject.map((Element) =>
+  slugify(Element.productName, { lower: true })
+);
+dataObject.forEach((Element, index) => {
+  Element.id = slugs[index];
+});
+
 const server = http.createServer((req, res) => {
   const { query, pathname } = url.parse(req.url, true);
   if (pathname == "/" || pathname == "/overview") {
@@ -42,7 +37,7 @@ const server = http.createServer((req, res) => {
       "content-type": "text/html",
     });
     const products = dataObject
-      .map((Element) => createCards(cardTemplate, Element))
+      .map((Element) => replaceAndFill(cardTemplate, Element))
       .join("");
     const mainPage = overview.replace(/{%card%}/g, products);
     res.end(mainPage);
@@ -50,8 +45,11 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       "content-type": "text/html",
     });
-    const product = dataObject[query.id];
-    const infoPage = createCards(productDetails, product);
+    const product = dataObject.filter((Element) => {
+      return Element.id == query.id;
+    });
+    // const product = dataObject[query.id];
+    const infoPage = replaceAndFill(productDetails, product[0]);
     res.end(infoPage);
   } else if (pathname === "/api") {
     res.writeHead(200, {
